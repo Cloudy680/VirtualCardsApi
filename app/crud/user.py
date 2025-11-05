@@ -33,6 +33,13 @@ class UserCRUD:
             return user.first()
 
     @staticmethod
+    async def get_user_by_email(email: str):
+        async with async_session_factory() as session:
+            stmt = select(UserORM).where(UserORM.email == email)
+            user = await session.scalars(stmt)
+            return user.first()
+
+    @staticmethod
     async def get_user_by_id(user_id: int):
         async with async_session_factory() as session:
             stmt = select(UserORM).where(UserORM.id == user_id)

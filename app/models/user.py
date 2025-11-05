@@ -13,7 +13,7 @@ class UserORM(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(nullable=False, unique = True)
     hashed_password : Mapped[str] = mapped_column(nullable=False)
-    email : Mapped[str] = mapped_column(nullable=False)
+    email : Mapped[str] = mapped_column(nullable=False, unique = True)
     name: Mapped[str] = mapped_column(nullable=False)
     surname: Mapped[str] = mapped_column(nullable=False)
     patronymic: Mapped[str] = mapped_column(nullable=False)
@@ -40,6 +40,13 @@ class User(BaseModel):
     async def check_if_username_exists(username: str):
         async with async_session_factory() as session:
             stmt = select(exists().where(UserORM.username == username))
+            result = await session.execute(stmt)
+            return result.scalar()
+
+    @staticmethod
+    async def check_if_email_exists(email: str):
+        async with async_session_factory() as session:
+            stmt = select(exists().where(UserORM.email == email))
             result = await session.execute(stmt)
             return result.scalar()
 

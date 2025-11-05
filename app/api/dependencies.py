@@ -26,16 +26,16 @@ def get_password_hash(password : str):
     return pwd_context.hash(password)
 
 
-async def get_user(username: str):
-    if await user_operations.check_if_username_exists(username):
-        user_from_db = await user_CRUD_operations.get_user_by_username(username)
+async def get_user(email: str):
+    if await user_operations.check_if_email_exists(email):
+        user_from_db = await user_CRUD_operations.get_user_by_email(email)
         return user_from_db
     else:
         return None
 
 
-async def authenticate_user(username: str, password: str):
-    user = await get_user(username)
+async def authenticate_user(email: str, password: str):
+    user = await get_user(email)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -73,13 +73,13 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
                              algorithms=[settings.ALGORITHM],
                              options={"verify_exp": True}
                              )
-        username = payload.get("sub")
-        if username is None:
+        email = payload.get("sub")
+        if email is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+        token_data = TokenData(email=email)
     except InvalidTokenError:
         raise credentials_exception
-    user = await get_user(username=token_data.username)
+    user = await get_user(email=token_data.email)
     if user is None:
         raise credentials_exception
     return user

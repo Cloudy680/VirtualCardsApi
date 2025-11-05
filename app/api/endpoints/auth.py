@@ -27,12 +27,12 @@ async def login_for_access_token(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user.email}, expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer", expires_in = settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
@@ -48,8 +48,8 @@ async def sign_in(username: Annotated[str, Query(max_length = 25)],
                   patronymic : str,
                   address: str | None = ""
                   ):
-    if await user_operations.check_if_username_exists(username):
-        raise HTTPException(status_code=400, detail="Username already exists")
+    if await user_operations.check_if_email_exists(email):
+        raise HTTPException(status_code=400, detail="Email already exists")
 
     if password != repeat_password:
         raise HTTPException(status_code=400, detail="You repeated the password incorrectly")
