@@ -1,5 +1,3 @@
-from sqlalchemy import text
-
 from app.db.database import async_engine,  Base
 
 
